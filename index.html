@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3 weeks of logging 🌱</title>
+<style>
+  :root{--bg:#0e1014;--card:#171a21;--fg:#e8e6e0;--mut:#8a8f98;--green:#4caf7d;--amber:#d9a441;--red:#c96a5a;--grey:#3a3f4a;--faint:#23262e;--accent:#7c6cf0}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:radial-gradient(1200px 600px at 80% -10%, #1b1f2e 0%, var(--bg) 55%);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:36px 20px;max-width:940px;margin:0 auto}
+  h1{font-size:28px;font-weight:800;letter-spacing:-.02em}
+  h1 .grad{background:linear-gradient(90deg,#4caf7d,#7c6cf0);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--mut);margin:8px 0 30px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid #232838;border-radius:14px;padding:14px 16px}
+  .stat b{display:block;font-size:22px}
+  .stat span{color:var(--mut);font-size:12px}
+  .card{background:var(--card);border:1px solid #232838;border-radius:16px;padding:22px;margin-bottom:20px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+  .label{color:var(--mut);font-size:13px;margin-bottom:14px}
+  .grid{display:grid;grid-template-columns:110px repeat(23,1fr);gap:5px;align-items:center}
+  .grid .h{font-size:13.5px}
+  .cell{aspect-ratio:1;border-radius:5px;background:var(--faint);transition:transform .12s}
+  .cell:hover{transform:scale(1.18)}
+  .Y{background:linear-gradient(160deg,#57bd8a,#3f9d6e)} .N{background:var(--red)} .slip{background:var(--amber)} .rest{background:var(--grey)}
+  .legend{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-size:12px}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block}
+  .steps{display:flex;align-items:flex-end;gap:4px;height:150px;margin-top:10px}
+  .bar{flex:1;background:linear-gradient(180deg,#57bd8a,#3f9d6e);border-radius:4px 4px 0 0;min-height:3px;position:relative;transition:transform .12s}
+  .bar:hover{transform:scaleY(1.02)}
+  .bar.zero{background:var(--faint)}
+  .bar:hover::after{content:attr(data-v);position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--fg);white-space:nowrap}
+  .nums{display:flex;gap:4px;margin-top:6px}
+  .nums span{flex:1;text-align:center;color:var(--mut);font-size:10px}
+  footer{color:var(--mut);font-size:13.5px;margin-top:14px}
+</style>
+</head>
+<body>
+<h1>3 weeks of logging, <span class="grad">with an AI assistant</span> ✨</h1>
+<p class="sub">streak made of weeks, not days - rest days included. 23 days, four nightly habits, neutral labels.</p>
+
+<div class="stats">
+  <div class="stat"><b>23</b><span>days in 📅</span></div>
+  <div class="stat"><b>14</b><span>days logged 📝</span></div>
+  <div class="stat"><b>71%</b><span>skincare streak 🧴</span></div>
+  <div class="stat"><b>~4.7k</b><span>avg steps 👟</span></div>
+</div>
+
+<div class="card">
+  <div class="label">the four habits 🌱</div>
+  <div class="grid" id="grid"></div>
+  <div class="legend">
+    <span><i class="dot" style="background:var(--green)"></i>done ✓</span>
+    <span><i class="dot" style="background:var(--amber)"></i>slip or pending 🟡</span>
+    <span><i class="dot" style="background:var(--red)"></i>missed ✗</span>
+    <span><i class="dot" style="background:var(--grey)"></i>planned rest 😴</span>
+    <span><i class="dot" style="background:var(--faint)"></i>not logged</span>
+  </div>
+</div>
+
+<div class="card">
+  <div class="label">daily steps 👟</div>
+  <div class="steps" id="steps"></div>
+  <div class="nums" id="nums"></div>
+</div>
+
+<footer>every day logged to an AI assistant 🤖, then rendered here. rest counts. the streak is made of weeks, not days 🌊</footer>
+
+<script>
+const habits = ["🏃 exercise","🧴 skincare","🥗 nutrition","📖 reading"];
+const data = [
+ ["rest","Y","Y","Y","rest","N",null,null,"N","N","Y","Y","slip","N",null,"Y",null,null,"Y",null,null,null,null],
+ ["Y","Y","Y","Y","Y","Y",null,null,"Y","Y","Y","Y","slip","Y",null,"Y",null,null,"Y",null,null,null,null],
+ ["Y","Y","Y","Y","slip","Y",null,null,"slip","Y","Y","Y","slip","Y",null,"Y",null,null,"Y",null,null,null,null],
+ ["N","Y","Y","slip","Y","Y",null,null,"slip","Y","slip","slip","N","slip",null,"N",null,null,"N",null,null,null,null]
+];
+const steps = [3443,4811,4063,3983,631,631,null,null,null,null,4992,4075,7140,null,null,4232,null,null,null,null,null,null,null];
+const MAX = 8600;
+
+const grid = document.getElementById("grid");
+habits.forEach((h,r)=>{
+  const lab=document.createElement("div");lab.className="h";lab.textContent=h;grid.appendChild(lab);
+  data[r].forEach(v=>{
+    const c=document.createElement("div");c.className="cell"+(v?" "+v:"");grid.appendChild(c);
+  });
+});
+
+const wrap=document.getElementById("steps");
+steps.forEach(s=>{
+  const b=document.createElement("div");
+  b.className="bar"+(s?"":" zero");
+  b.style.height=s?Math.max(3,(s/MAX)*100)+"%":"6px";
+  if(s)b.dataset.v=s.toLocaleString();
+  wrap.appendChild(b);
+});
+const nums=document.getElementById("nums");
+for(let d=1;d<=23;d++){const s=document.createElement("span");s.textContent=d;nums.appendChild(s);}
+</script>
+</body>
+</html>
